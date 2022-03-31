@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <!-- 제이쿼리 임포트 --> 
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <title>hangHaeLog-register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+          crossorigin="anonymous"></script>
+          <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@500&display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@500&family=Sunflower:wght@500&display=swap"
+          rel="stylesheet">      
+
+    <style>
+
+    body {
+        background-color: ivory;
+    }
+    .basic {
+            position: relative;
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 120px;
+            margin-left: 100px;
+            letter-spacing: 10px;
+            line-height: 20px;
+            margin-bottom: 10px;
+        }
+    .wrap {
+            width: 600px;
+            height: 540px;
+            margin: auto;
+            margin-right: 250px;
+            margin-top: 190px;
+            padding-top: 50px;
+            padding-left: 200px;
+            }
+    .wrap label{
+        width:100px;
+    }
+        .you {
+            position: absolute;top: 60px;left: 0;
+            color: gold;
+        }
+        .are {
+            position: absolute;top: 190px;left: 0;
+            color: gold;
+        }
+        .my {
+            position: absolute;top: 320px;left: 0;
+            color: mediumpurple;
+        }
+        .favorite {
+            position: absolute;top: 450px;left: 0;
+            color: navy;
+        }
+        .mybutton {
+            display: flex;
+        }
+        .fst {
+            margin-top: 20px;
+            margin-left: 110px;
+            margin-right: 30px;
+        }
+        .scd {
+            margin-top: 20px;
+        }
+        .id {
+            margin-bottom: 10px;
+        }
+        .twoButton{
+            width: 400px;
+            display: flex;
+        }
+        .back{
+            margin-right: 100px;
+            margin-left: 50px;
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script>
+
+        /*hasClass('클래스 이름'):선택한 요소에 클래스가 있는지 확인함*/
+        $(document).ready(function () {
+            $('.m_pass button').on('click', function () {
+                $('input').toggleClass('active');
+                /*만약 input 태그에 active가 추가된다면*/
+                if ($('input').hasClass('active')) {
+                    $('.show').css({backgroundColor: '#ffcc00'})
+                        .prev('input').attr('type', 'text');
+
+                } else {
+                    $('.show').css({backgroundColor: '#fff'})
+                        .prev('input').attr('type', 'password');
+                }
+
+            });
+        });
+
+
+        function mid(asValue) {
+            var regExp = /^(?=.*[a-zA-Z0-9])[-a-zA-Z0-9]{3,}$/i;
+            
+  
+            return regExp.test(asValue);
+        }
+
+        function mpw(asValue) {
+            var regExp = /^(?=.*\d)(?=.*[a-zA-Z0-9])[0-9a-zA-Z]{4,}$/i;
+            return regExp.test(asValue);
+        }
+
+        function check_id() {
+            let userid = $(".input-userid").val()
+            console.log(userid)
+
+            if (userid == "") {
+                $("#help_id").text("닉네임을 입력해주세요.").removeClass("is-success").addClass("is-danger")
+                $(".input-userid").focus()
+                return;
+            }
+
+            if (!mid(userid)) {
+                $("#help_id").text("닉네임은 최소 3자 이상, 알파벳 대소문자, 숫자로 구성").removeClass("is-success").addClass("is-danger")
+                $("#input-userid").focus()
+                return;
+            }
+
+            $("#help_id").addClass("is-loading")
+            let nickname = userid
+            $.ajax({
+                type: "POST",
+                url: "/check_id",
+                contentType:"application/json",
+                data:JSON.stringify({nickname: nickname}),
+                success: function (response) {
+                    console.log("닉네임 전송 완료")
+
+                   if (response["exists"]) {
+                        $("#help_id").text("이미 존재하는 닉네임입니다.").removeClass("is-success").addClass("is-danger")
+                        $(".input-userid").focus()
+                    } else {
+                        $("#help_id").text("사용할 수 있는 닉네임입니다.").removeClass("is-danger").addClass("is-success")
+                    }
+                    $("#help_id").removeClass("is-loading")
+
+                }
+            })
+        }
+
+        function register() {
+            let username = $('.input-username').val()
+            let userid = $(".input-userid").val()
+            let userpassword = $(".input_pw").val()
+            let userpassword_scd = $(".input_pw_scd").val()
+
+            if(username==""){
+                $("#help_name").text("이름을 입력해주세요.").removeClass("is-success").addClass("is-danger")
+                $(".input-username").focus()
+                return;
+            }
+            if (userid == ""){
+                $("#help_id").text("닉네임을 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+                $(".input-userid").focus()
+                return;
+            } else if ($("#help_id").hasClass("is-danger")) {
+                alert("닉네임을 다시 확인해주세요.")
+                return;
+            } else if (!$("#help_id").hasClass("is-success")) {
+                alert("닉네임 중복확인을 해주세요.")
+                return;
+            }
+
+            if (userpassword == "") {
+                $("#help_password_fst").text("비밀번호를 입력해주세요").removeClass("is-success").addClass("is-danger")
+                $(".input_pw").focus()
+                return;
+            } else if (!mpw(userpassword)||userpassword.includes(userid)) {
+                $("#help_password_fst").text("비밀번호는 최소 4자 이상으로 비밀번호에 닉네임과 같은 값이 포함된 경우 사용불가").removeClass("is-success").addClass("is-danger")
+                $("#input_pw").focus()
+                return;
+            } else {
+                $("#help_password_fst").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
+            }
+            if (userpassword_scd == "") {
+                $("#help_password_scd").text("비밀번호를 입력해주세요.").removeClass("is-success").addClass("is-danger")
+                $("#input_pw_scd").focus()
+                return;
+            } else if (userpassword_scd != userpassword) {
+                $("#help_password_scd").text("비밀번호가 일치하지 않습니다.").removeClass("is-success").addClass("is-danger")
+                $("#input_pw_scd").focus()
+                return;
+            } else {
+                $("#help_password_scd").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/usersave",
+                data: {
+                    name: $('#mname').val(),
+                    nickname: $('#mid').val(),
+                    password: $('#mpw').val(),
+
+                },
+                success: function (response) {
+
+                    console.log("데이터 전송 완료")
+                    if (response['result'] == 'success') {
+                        alert('회원가입이 완료되었습니다.')
+                        window.location.href = '/login'
+                    } else {
+                        alert(response['msg'])
+                    }
+                }
+            })
+        }
+
+        function login_back(){
+            window.location.href = '/login'
+        }
+
+    </script>
+
+
+</head>
+<body>
+        <div class="basic">
+    <p class="you">hang</p>
+    <p class="are">Hae</p>
+    <p class="my">Log</P>
+</div>
+
+<div class="wrap">
+    <h1>회원가입</h1>
+
+    <!--이름-->
+    <div class="name">
+        <label for="mname">이름</label>
+        <input type="text" id="mname" class="input input-username">
+        <p id="help_name" class="help"></p>
+    </div>
+
+    <!--아이디-->
+    <div class="m_id">
+        <label for="mid">닉네임</label>
+        <input class="input input-userid" type="text" id="mid">
+        <button type="button" class="btn btn-warning" onclick="check_id()">중복확인</button>
+    </div>
+    <!--조건에 충족하지 않을 경우 문구 띄우기-->
+    <p id="help_id" class="help is-success"></p>
+
+
+    <!--비밀번호-->
+    <div class="m_pass">
+        <label for="mpw">암호</label>
+        <input type="password" id="mpw" class="input input_pw">
+        <button class='show'>👀</button>
+    </div>
+    <p id="help_password_fst" class="help is-success"></p>
+
+    <!--비밀번호 확인-->
+    <div class="m_pass2">
+        <label for="mpw2">암호 확인</label>
+        <input type="password" id="mpw2" class="input input_pw_scd">
+
+        <!--일치할경우 p태그안에 문구 띄우기-->
+
+        <p id="help_password_scd" class="help is-success"></p>
+    </div>
+    <div class="twoButton">
+    <div class="back">
+        <button type="button" class="btn btn-secondary" onclick="login_back()">돌아가기</button>
+    </div>
+    <div class="confirm">
+        <button type="button" class="btn btn-warning" onclick="register()">가입하기</button>
+    </div>
+</div>
+</div>
+</div>
+</body>
+</html>
